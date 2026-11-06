@@ -42,16 +42,15 @@ public class Core {
                 return false;
             }
 
+            // Acumular el tiempo inactivo antes de marcar el core como ocupado
+            // (antes se comprobaba !ocupado después de asignarlo y nunca se sumaba).
+            long tiempoActual = System.currentTimeMillis();
+            tiempoInactivo += (tiempoActual - ultimoCambioEstado);
+            ultimoCambioEstado = tiempoActual;
+
             this.procesoActual = proceso;
             this.ocupado = true;
-            this.tiempoInicioEjecucion = System.currentTimeMillis();
-
-            
-            long tiempoActual = System.currentTimeMillis();
-            if (!ocupado) {
-                tiempoInactivo += (tiempoActual - ultimoCambioEstado);
-            }
-            ultimoCambioEstado = tiempoActual;
+            this.tiempoInicioEjecucion = tiempoActual;
 
             
             proceso.iniciarEjecucion(tiempoActual);
