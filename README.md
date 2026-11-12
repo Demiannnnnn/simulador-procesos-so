@@ -20,7 +20,7 @@ El proyecto modela y visualiza la gestión del ciclo de vida de procesos concurr
 
 ## Requisitos Previos
 
-- Java Development Kit (JDK) versión 22 o superior (compatible con JDK 22, Temurin 25 o OpenJDK 27).
+- JDK 22 o superior (el CI usa Temurin 25).
 
 ## Ejecución de la Aplicación
 
