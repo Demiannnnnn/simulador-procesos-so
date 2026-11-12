@@ -112,6 +112,30 @@ class PlanificacionTest {
     }
 
     @Test
+    void roundRobinRegistraTiempoInicioValidoYCoherenteConLlegada() throws InterruptedException {
+        RoundRobin rr = new RoundRobin(20);
+        rr.setCpu(cpu(1));
+        Proceso p1 = new Proceso("P1", 20, 10, 0);
+        Proceso p2 = new Proceso("P2", 20, 10, 0);
+        List<Proceso> l = List.of(p1, p2);
+
+        rr.ejecutarProcesos(l);
+        esperarFin(rr);
+
+        for (Proceso p : l) {
+            assertTrue(p.yaComenzo(), "El proceso debió haber comenzado: " + p);
+            assertTrue(p.getTiempoInicioReal() >= 0,
+                    "El tiempo de inicio no debe ser negativo ni haber desbordado: " + p.getTiempoInicioReal());
+            assertTrue(p.getTiempoInicioReal() >= p.getTiempoLlegada(),
+                    "El tiempo de inicio debe ser coherente con el tiempo de llegada");
+            assertEquals(p.getTiempoInicioReal() - p.getTiempoLlegada(), p.getTiempoEspera(),
+                    "El tiempo de espera debe coincidir con inicio - llegada");
+            assertTrue(p.getTiempoInicioReal() < 100_000,
+                    "El tiempo debe registrarse en la escala de simulación (ms simulados), no epoch ms: " + p.getTiempoInicioReal());
+        }
+    }
+
+    @Test
     void sjfNoPreemptivoTerminaTodos() throws InterruptedException {
         SJF sjf = new SJF();
         sjf.setCpu(cpu(2));
