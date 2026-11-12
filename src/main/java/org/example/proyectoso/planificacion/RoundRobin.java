@@ -1,6 +1,7 @@
 package org.example.proyectoso.planificacion;
 
 import org.example.proyectoso.models.*;
+import org.example.proyectoso.utils.SimuladorTiempo;
 import java.util.*;
 
 
@@ -68,6 +69,7 @@ public class RoundRobin extends Planificacion {
     
     private void ejecutarRoundRobin(List<Proceso> procesos) {
         synchronized (rrLock) {
+            SimuladorTiempo.iniciar();
             System.out.println("🚀 Iniciando Round Robin con " + procesos.size() + " procesos (quantum=" + quantum + "ms)");
             Queue<Proceso> cola = new LinkedList<>(procesos);
 
@@ -112,8 +114,9 @@ public class RoundRobin extends Planificacion {
             return;
         }
 
-        try {            if (!proceso.yaComenzo()) {
-                proceso.marcarInicioEjecucion((int) System.currentTimeMillis());
+        try {
+            if (!proceso.yaComenzo()) {
+                proceso.marcarInicioEjecucion((int) SimuladorTiempo.getTiempoActual());
             }
 
             proceso.setEstado(EstadoProceso.EJECUTANDO);
@@ -121,7 +124,9 @@ public class RoundRobin extends Planificacion {
 
             System.out.println("▶️ RR ejecutando proceso " + proceso.getId() +
                     " por " + tiempoEjecucion + "ms (Restante: " +
-                    proceso.getTiempoRestante() + "ms)");            boolean terminado = proceso.ejecutarQuantumSinDelay(tiempoEjecucion, System.currentTimeMillis());            try {
+                    proceso.getTiempoRestante() + "ms)");
+            boolean terminado = proceso.ejecutarQuantumSinDelay(tiempoEjecucion, System.currentTimeMillis());
+            try {
                 Thread.sleep(tiempoEjecucion);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
@@ -160,12 +165,14 @@ public class RoundRobin extends Planificacion {
     @Override
     public void pausar() {
         pausado = true;
+        SimuladorTiempo.pausar();
         super.pausar();
     }
 
     @Override
     public void reanudar() {
         pausado = false;
+        SimuladorTiempo.reanudar();
         super.reanudar();
     }
 
