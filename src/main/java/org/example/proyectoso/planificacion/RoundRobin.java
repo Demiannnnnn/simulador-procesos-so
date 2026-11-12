@@ -154,34 +154,33 @@ public class RoundRobin extends Planificacion {
         System.out.println("   - Tiempo promedio respuesta: " + tiempoPromedioRespuesta + "ms");
     }
 
+    // pausar/reanudar/detener no toman rrLock: el hilo de ejecución lo mantiene durante
+    // toda la simulación, por lo que antes estas llamadas quedaban bloqueadas hasta que
+    // terminaban todos los procesos. Los flags son volatile y basta con cambiarlos.
     @Override
     public void pausar() {
-        synchronized (rrLock) {
-            pausado = true;
-            super.pausar();
-        }
+        pausado = true;
+        super.pausar();
     }
 
     @Override
     public void reanudar() {
-        synchronized (rrLock) {
-            pausado = false;
-            super.reanudar();
-        }
+        pausado = false;
+        super.reanudar();
     }
 
     @Override
     public void detener() {
-        synchronized (rrLock) {
-            super.detener();
-            pausado = true;
-            if (hiloEjecucion != null && hiloEjecucion.isAlive()) {
-                hiloEjecucion.interrupt();
-                try {
-                    hiloEjecucion.join(1000);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
+        pausado = true;
+        super.detener();
+
+        Thread hilo = hiloEjecucion;
+        if (hilo != null && hilo.isAlive() && hilo != Thread.currentThread()) {
+            hilo.interrupt();
+            try {
+                hilo.join(1000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
             }
         }
     }
