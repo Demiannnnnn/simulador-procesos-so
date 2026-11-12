@@ -36,3 +36,6 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+### Reportes de simulación generados ###
+estadisticas_simulacion_*.txt
